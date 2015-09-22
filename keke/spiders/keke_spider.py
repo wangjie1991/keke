@@ -3,9 +3,9 @@
 import scrapy
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
-from crawler.spiders.linkfilter import LinkFilter
-from crawler.items import KekeItem
-from crawler import settings
+from keke.spiders.linkfilter import LinkFilter
+from keke.items import KekeItem
+from keke import settings
 
 
 class KekeSpider(CrawlSpider):
@@ -28,9 +28,11 @@ class KekeSpider(CrawlSpider):
         path = path.rstrip('.shtml')
         item['path'] = '%s/%s' % (settings.KEKE_STORE, path)
 
-        txt = response.body.decode('utf-8')
-        wav_index1 = txt.find('mp3下载地址')
-        lrc_index1 = txt.find('字幕下载地址')
+        txt = response.body#.decode('utf-8')
+        wav_tag = 'mp3下载地址'
+        wav_index1 = txt.find(wav_tag)
+        lrc_tag = '字幕下载地址'
+        lrc_index1 = txt.find(lrc_tag)
 
         if ((-1 == wav_index1) or (-1 == lrc_index1)):
             return None
