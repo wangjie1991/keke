@@ -10,14 +10,13 @@ from keke import settings
 
 class KekeSpider(CrawlSpider):
     name = 'keke'
-    allowed_domains = ['kekenet.com']
-    start_urls = ['http://www.kekenet.com/broadcast/voaspecial/']
+    allowed_domains = ['www.kekenet.com']
+    start_urls = ['http://www.kekenet.com/broadcast/']
     linkfilter = LinkFilter('keke')
     
     rules = [Rule(LinkExtractor(allow=(r'http://www\.kekenet\.com/mp3/[0-9/]*\.shtml')), 
                   callback='parse_item', follow=False, process_links=linkfilter.html_filter),
-             Rule(LinkExtractor(allow=(r'http://www\.kekenet\.com/broadcast/voaspecial/.*?', 
-                                       r'http://www\.kekenet\.com/broadcast/[0-9/]*\.shtml')), 
+             Rule(LinkExtractor(allow=(r'http://www\.kekenet\.com/broadcast/.*')), 
                   process_links=linkfilter.index_filter)]
     
     def parse_item(self, response):
@@ -28,13 +27,22 @@ class KekeSpider(CrawlSpider):
         path = path.rstrip('.shtml')
         item['path'] = '%s/%s' % (settings.KEKE_STORE, path)
 
-        txt = response.body#.decode('utf-8')
+        txt = response.body
         wav_tag = 'mp3下载地址'
         wav_index1 = txt.find(wav_tag)
         lrc_tag = '字幕下载地址'
         lrc_index1 = txt.find(lrc_tag)
 
         if ((-1 == wav_index1) or (-1 == lrc_index1)):
+            return None
+
+        # 判断是否在注释内
+        wav_cmt1 = txt.rfind('<!--', 0, wav_index1)
+        wav_cmt2 = txt.find('-->', wav_cmt1)
+        lrc_cmt1 = txt.rfind('<!--', 0, lrc_index1)
+        lrc_cmt2 = txt.find('-->', lrc_cmt1)
+        # tag在注释中
+        if (wav_index1 < wav_cmt2) or (lrc_index1 < lrc_cmt2):
             return None
 
         wav_index2 = txt.rfind('http', 0, wav_index1)

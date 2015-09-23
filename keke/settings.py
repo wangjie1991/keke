@@ -85,4 +85,4 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE='scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-KEKE_STORE = '/home/jay/Documents/corpus/keke'
+KEKE_STORE = '/home/wangjie/Documents/corpus/keke'
